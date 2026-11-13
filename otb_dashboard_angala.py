@@ -102,8 +102,8 @@ def fmt_int(x) -> str:
 #   * Revenue is spread evenly over the in-range nights of each unit-booking.
 #   * Provisional bookings ARE counted on the books, but tracked separately so
 #     the dashboard can show how much of each month is still provisional.
-#   * Zero-rate stays (complimentary / house use) occupy inventory but add no
-#     revenue; they are counted and reported back after upload.
+#   * Zero-rate stays (complimentary / house use) are left out of room nights and
+#     occupancy ("excl comp", as Angala reports it); they are counted and reported back.
 #   * Report timestamp is taken from the footer line, so the snapshot is dated
 #     when ResRequest produced it, not when it was uploaded.
 # ══════════════════════════════════════════════════════════════════════════════
@@ -214,6 +214,12 @@ def parse_resrequest_revenue_csv(file_bytes: bytes, filename: str, hotel: str,
 
     live["_rev"] = live["_rev"] - BREAKFAST_NET_PER_ADULT * live["_adults"] * live["_rn"]
 
+    # Angala reports occupancy EXCLUDING complimentary stays, and the last-year actuals
+    # are on that basis, so zero-rate stays (comp / house use) are left out of room
+    # nights and occupancy as well as revenue. They're counted and reported back.
+    zero = live[live["_rev"] <= 0].copy()
+    live = live[live["_rev"] > 0].copy()
+
     # ---- expand to nights inside the window ----
     if win_start is None:
         win_start = live["_arr"].min().date()
@@ -292,7 +298,6 @@ def parse_resrequest_revenue_csv(file_bytes: bytes, filename: str, hotel: str,
     DAY_COLS = ["stay_date", "free_rooms", "occupied_rooms", "total_rooms", "occupancy_pct",
                 "accom_rev", "fnb_rev", "extras_rev", "total_rev"]
 
-    zero = live[(live["_rev"] <= 0)]
     meta = {
         "hotel": hotel,
         "report_datetime": (report_dt or datetime.datetime.now()).strftime("%Y-%m-%d %H:%M:%S"),
@@ -1308,19 +1313,61 @@ if os.getenv("SEED_BUDGET", "") == "1":
         st.sidebar.success(f"Seeded BUDGET baseline for {hotel} (SEED_BUDGET=1).")
 
 
-# ---- Seed LAST YEAR (final actuals) baseline ONCE (only when SEED_LY=1) ----
-# Same line format as the budget, for last year's months (e.g. "Nov 2025, ...").
+# ---- LAST YEAR (final actuals) baseline ----
+# From Angala's monthly actuals (Liam, 13 Nov 2026): "Month, Net Room Revenue (ex VAT),
+# room nights, available room nights". Room nights = Net Room Revenue / Net ADR (every
+# month divides exactly), occupancy is EXCLUDING complimentary stays, capacity = 11 x days.
+# Loaded automatically on start (insert-or-replace per month), so to correct or add a
+# month just edit the line here and commit; no SEED_LY variable needed.
 HOTEL_LY_TEXT = {
     "angala boutique hotel": """
+Jan 2025, 1580111.20, 248, 341
+Feb 2025, 1619873.90, 256, 308
+Mar 2025, 1298992.98, 210, 341
+Apr 2025, 439028.88, 77, 330
+May 2025, 329500.56, 82, 341
+Jun 2025, 82808.77, 19, 330
+Jul 2025, 90204.87, 19, 341
+Aug 2025, 261389.98, 52, 341
+Sep 2025, 416541.92, 102, 330
+Oct 2025, 733973.09, 107, 341
+Nov 2025, 1331115.49, 203, 330
+Dec 2025, 1260609.69, 176, 341
+Jan 2026, 1956386.37, 258, 341
+Feb 2026, 1858653.26, 243, 308
+Mar 2026, 1402115.28, 206, 341
+Apr 2026, 539359.83, 88, 330
+May 2026, 281802.07, 89, 341
+Jun 2026, 163000.65, 66, 330
+Jul 2026, 70335.65, 13, 341
+Aug 2026, 230973.65, 93, 341
+Sep 2026, 426622.75, 78, 330
+Oct 2026, 654585.68, 88, 341
 """.strip(),
 }
-if os.getenv("SEED_LY", "") == "1":
-    ly_text = HOTEL_LY_TEXT.get(hotel.strip().lower())
-    if not ly_text:
-        st.sidebar.error("SEED_LY=1 is set, but HOTEL_LY_TEXT has no Angala lines yet.")
-    else:
-        db_upsert_yoy_baseline(conn, hotel, parse_yoy_text(ly_text))
-        st.sidebar.success(f"Seeded LAST YEAR baseline for {hotel} (SEED_LY=1).")
+
+
+@st.cache_resource(show_spinner=False)
+def _seed_ly_baseline(db_path: str, hotel: str, text: str) -> int:
+    df = parse_yoy_text(text)
+    if df.empty:
+        return 0
+    c = sqlite3.connect(db_path, check_same_thread=False)
+    try:
+        for _, r in df.iterrows():
+            c.execute(
+                "INSERT OR REPLACE INTO yoy_baseline (hotel, stay_month, accom_rev, occupied_rooms, total_rooms) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (hotel, str(r["stay_month"]), float(r["accom_rev"]), int(r["occupied_rooms"]), int(r["total_rooms"])),
+            )
+        c.commit()
+    finally:
+        c.close()
+    st.cache_data.clear()
+    return len(df)
+
+
+_seed_ly_baseline(DB_PATH, hotel, HOTEL_LY_TEXT.get(hotel.strip().lower(), ""))
 
 
 # ── Admin access ─────────────────────────────────────────────────────────────
@@ -1382,8 +1429,8 @@ if is_admin:
                              f"Provisional on the books: {fmt_int(meta['prov_nights'])} room nights, "
                              f"{fmt_rand0(meta['prov_rev'])} (counted, and shown separately in the table)."
                              + (f" {meta['zero_rate_bookings']} zero-rate bookings "
-                                f"({meta['zero_rate_nights']} room nights, e.g. complimentary/house use) "
-                                f"count as occupied with no revenue." if meta['zero_rate_bookings'] else "")))
+                                f"({meta['zero_rate_nights']} room nights, complimentary/house use) "
+                                f"are left out of occupancy (excl comp, as Angala reports it)." if meta['zero_rate_bookings'] else "")))
                 if meta.get("overbooked_days"):
                     msgs.append(("warning", f"More than {meta['inventory_rooms']} rooms booked on: "
                                             + ", ".join(meta["overbooked_days"][:10])
@@ -2032,7 +2079,9 @@ cur_metrics = build_month_metrics(cur_view.rename(columns={
     "total_rooms": "total_rooms",
 }), "cur")
 
-compare_mode = st.radio("Compare against", ["Budget", "Last Year"], horizontal=True)
+_has_budget = not db_load_budget_baseline(conn, hotel).empty
+compare_mode = st.radio("Compare against", ["Budget", "Last Year"], horizontal=True,
+                        index=0 if _has_budget else 1)
 
 # Load baseline based on toggle
 if compare_mode == "Budget":
@@ -2482,8 +2531,8 @@ def build_gm_brief_html(
     month_body = ""
     for r in month_rows:
         month_body += (
-            f'<tr><td style="{td}font-weight:600;color:{_GM["ink"]};">{r["month"]}</td>'
-            f'<td style="{td}text-align:right;">{r["otb"]}</td>'
+            f'<tr><td style="{td}font-weight:600;color:{_GM["ink"]};white-space:nowrap;">{r["month"]}</td>'
+            f'<td style="{td}text-align:right;white-space:nowrap;">{r["otb"]}</td>'
             + (f'<td style="{td}text-align:right;color:{_GM["muted"]};">{r.get("prov") or "—"}</td>' if show_prov else "")
             + f'<td style="{td}text-align:right;color:{_GM["muted"]};">{r["occ"]}</td>'
             f'<td style="{td}text-align:right;color:{_GM["muted"]};">{r.get("adr", "")}</td>'
@@ -2586,7 +2635,7 @@ def build_gm_brief_html(
       <b>On the books</b> — revenue already booked for that month (confirmed and provisional). It will keep growing as
       more bookings come in, so a month that looks short today is not necessarily short.<br>
       <b>Of which provisional</b> — held but not yet confirmed; this can still fall away.<br>
-      <b>Occupancy</b> — the share of rooms sold for the month so far.<br>
+      <b>Occupancy</b> — the share of rooms sold for the month so far, excluding complimentary stays.<br>
       <b>Average room rate</b> — average revenue per room sold, excluding VAT.<br>
       Figures exclude VAT. Questions about anything here — reply to this mail.
     </div>
