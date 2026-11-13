@@ -1,0 +1,12 @@
+# Angala Boutique Hotel brand theme (deploys with the app on Railway)
+
+[theme]
+base = "light"
+primaryColor = "#A8814E"           # warm bronze — sliders, focus rings, radio dots
+backgroundColor = "#F3F1EA"        # limestone canvas
+secondaryBackgroundColor = "#FFFDF8"
+textColor = "#2B302B"
+font = "sans serif"
+
+[server]
+headless = true
