@@ -12,40 +12,40 @@ import plotly.graph_objects as go
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  ANGALA BOUTIQUE HOTEL BRAND THEME
-#  A "barefoot 5-star sanctuary" in the Cape Winelands between the Paarl and
-#  Franschhoek mountains: deep fynbos green, olive, warm bronze/champagne,
-#  and limestone neutrals.
+#  Taken from angala.co.za: Angala gold (#BAAA70) and its darker bronze (#7E6F3A),
+#  deep ink-teal text (#0C1C1F), slate grey (#838E91), warm cream (#FDF8F6),
+#  and Playfair Display headings.
 #  (BRAND keys are shared with the other Providence dashboards so the CSS and
 #  chart code stays identical; only the values change.)
 # ══════════════════════════════════════════════════════════════════════════════
 BRAND = {
-    "deep":       "#1F2E27",   # deep fynbos green (headers, sidebar)
-    "brown":      "#34463B",   # mountain green
-    "sage":       "#6F8467",   # olive / fynbos (charts: current)
-    "sage_soft":  "#AEBDA3",   # soft olive (charts: baseline)
-    "clay":       "#A8814E",   # warm bronze (accent, highlights)
-    "clay_soft":  "#D2B98F",   # champagne
-    "gold":       "#C2A46B",   # champagne gold
+    "deep":       "#0C1C1F",   # ink-teal (headers, sidebar)
+    "brown":      "#22363A",   # deep teal-slate
+    "sage":       "#4F676C",   # slate teal (charts: current)
+    "sage_soft":  "#A9B4B6",   # soft slate (charts: baseline)
+    "clay":       "#7E6F3A",   # dark Angala gold (accent text, highlights)
+    "clay_soft":  "#D6CA9E",   # pale gold
+    "gold":       "#BAAA70",   # Angala gold
     "rust":       "#9C4A32",   # deep rust (variance / drops)
-    "linen":      "#F3F1EA",   # page background (limestone)
-    "ivory":      "#FFFDF8",   # card background
-    "text":       "#2B302B",   # body text
-    "muted":      "#66695F",   # muted text
-    "line":       "#E0DDD0",   # hairlines / borders
-    "good_bg":    "rgba(95, 125, 80, 0.36)",    # positive cell tint (olive green)
-    "bad_bg":     "rgba(156, 74, 50, 0.32)",    # negative cell tint (rust)
-    "good_txt":   "#2F4424",                     # positive text
+    "linen":      "#F6F3EC",   # page background (warm cream-stone)
+    "ivory":      "#FDF8F6",   # card background (site cream)
+    "text":       "#0C1C1F",   # body text
+    "muted":      "#5F6A6D",   # muted text (darker than the site's #838E91 for contrast)
+    "line":       "#E6E1D6",   # hairlines / borders
+    "good_bg":    "rgba(79, 120, 92, 0.30)",    # positive cell tint
+    "bad_bg":     "rgba(156, 74, 50, 0.30)",    # negative cell tint (rust)
+    "good_txt":   "#244A30",                     # positive text
     "bad_txt":    "#73291A",                     # negative text
 }
 
 # Plotly defaults for a consistent branded look
 PLOTLY_FONT = dict(family="Montserrat, 'Segoe UI', sans-serif", size=13, color=BRAND["text"])
 HEAT_COLORSCALE = [
-    [0.00, "#F0EEE6"],
-    [0.35, "#D3D9C6"],
-    [0.60, "#AEBDA3"],
-    [0.80, "#6F8467"],
-    [1.00, "#34463B"],
+    [0.00, "#F3F0E8"],
+    [0.35, "#E4DAB4"],
+    [0.60, "#BAAA70"],
+    [0.80, "#4F676C"],
+    [1.00, "#0C1C1F"],
 ]
 
 
@@ -326,7 +326,7 @@ except Exception:
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
     /* ---------- Page canvas ---------- */
     .stApp, [data-testid="stAppViewContainer"] {{
@@ -340,7 +340,7 @@ st.markdown(
     h1, h2, h3, [data-testid="stMarkdownContainer"] h1,
     [data-testid="stMarkdownContainer"] h2,
     [data-testid="stMarkdownContainer"] h3 {{
-        font-family: 'Cormorant Garamond', Georgia, serif !important;
+        font-family: 'Playfair Display', Georgia, serif !important;
         color: {BRAND["deep"]} !important;
         letter-spacing: 0.02em;
     }}
@@ -364,7 +364,7 @@ st.markdown(
 
     /* ---------- Hero header ---------- */
     .sl-hero {{
-        background: linear-gradient(135deg, {BRAND["deep"]} 0%, {BRAND["brown"]} 55%, #5A4E40 100%);
+        background: linear-gradient(135deg, {BRAND["deep"]} 0%, {BRAND["brown"]} 60%, #33494E 100%);
         border-radius: 18px;
         padding: 2.1rem 2.4rem 1.9rem 2.4rem;
         margin-bottom: 1.4rem;
@@ -374,7 +374,7 @@ st.markdown(
     }}
     .sl-hero:before {{
         content:""; position:absolute; inset:0;
-        background: radial-gradient(1200px 300px at 90% -50%, rgba(196,154,94,.30), transparent 60%);
+        background: radial-gradient(1200px 300px at 90% -50%, rgba(186,170,112,.30), transparent 60%);
     }}
     .sl-hero .eyebrow {{
         font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:600;
@@ -382,7 +382,7 @@ st.markdown(
         margin-bottom:.4rem; position:relative;
     }}
     .sl-hero h1 {{
-        font-family:'Cormorant Garamond', Georgia, serif !important;
+        font-family:'Playfair Display', Georgia, serif !important;
         color:#FCF8F0 !important; font-size:2.6rem !important; font-weight:600;
         margin:0 0 .3rem 0 !important; line-height:1.1; position:relative;
     }}
@@ -403,7 +403,7 @@ st.markdown(
     [data-testid="stSidebar"] * {{ color: #EDE7DB !important; }}
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {{
         color: {BRAND["clay_soft"]} !important;
-        font-family:'Cormorant Garamond', Georgia, serif !important;
+        font-family:'Playfair Display', Georgia, serif !important;
     }}
     /* Sidebar inputs — solid linen field with dark text so entries are readable */
     [data-testid="stSidebar"] input,
@@ -413,7 +413,7 @@ st.markdown(
         background-color: #FBF7EE !important;
         color: {BRAND["deep"]} !important;
         -webkit-text-fill-color: {BRAND["deep"]} !important;
-        border: 1px solid rgba(196,154,94,.55) !important;
+        border: 1px solid rgba(186,170,112,.55) !important;
         font-weight: 500 !important;
     }}
     [data-testid="stSidebar"] input::placeholder,
@@ -436,7 +436,7 @@ st.markdown(
         border-top: 3px solid {BRAND["clay"]};
         border-radius: 14px;
         padding: 1rem 1.1rem .9rem 1.1rem;
-        box-shadow: 0 4px 14px rgba(46,42,38,.07);
+        box-shadow: 0 4px 14px rgba(12,28,31,.07);
     }}
     [data-testid="stMetricLabel"] p {{
         font-size: .78rem !important; font-weight: 600;
@@ -444,7 +444,8 @@ st.markdown(
         color: {BRAND["muted"]} !important;
     }}
     [data-testid="stMetricValue"] {{
-        font-family:'Cormorant Garamond', Georgia, serif;
+        font-family:'Playfair Display', Georgia, serif;
+        font-size: 1.75rem !important;
         color: {BRAND["deep"]} !important;
         font-weight: 700;
     }}
@@ -471,7 +472,7 @@ st.markdown(
         background: {BRAND["ivory"]};
         border: 1px solid {BRAND["line"]} !important;
         border-radius: 12px !important;
-        box-shadow: 0 3px 10px rgba(46,42,38,.05);
+        box-shadow: 0 3px 10px rgba(12,28,31,.05);
     }}
     [data-testid="stExpander"] summary {{
         font-family:'Montserrat',sans-serif; font-weight:600; color:{BRAND["brown"]};
@@ -556,7 +557,7 @@ def _render_footer():
         f"""
         <div style="text-align:center; margin-top:3rem; padding:1.4rem 0 0.5rem 0;
                     border-top:1px solid {BRAND['line']};
-                    font-family:'Cormorant Garamond', Georgia, serif;
+                    font-family:'Playfair Display', Georgia, serif;
                     color:{BRAND['muted']}; font-size:1.05rem;">
             Angala Boutique Hotel · A barefoot 5-star sanctuary in the Cape Winelands
             <div style="width:48px; height:2px; background:{BRAND['clay']}; margin:.6rem auto 0 auto;"></div>
@@ -1823,7 +1824,7 @@ def calendar_heatmap_month(df_days: pd.DataFrame, month_ts: pd.Timestamp):
     fig.update_layout(
         title=dict(
             text=f"Daily OTB Occupancy % — {m0:%b %Y}",
-            font=dict(family="Cormorant Garamond, Georgia, serif", size=22, color=BRAND["deep"]),
+            font=dict(family="Playfair Display, Georgia, serif", size=22, color=BRAND["deep"]),
         ),
         yaxis_autorange="reversed",
         height=340,
@@ -2207,7 +2208,7 @@ fig_cmp.update_layout(
         tickprefix="R" if prefix == "R" else "",
         ticksuffix="" if prefix == "R" else "%",
         showgrid=True,
-        gridcolor="rgba(74,63,53,0.12)",
+        gridcolor="rgba(12,28,31,0.10)",
     ),
     yaxis2=dict(
         title=var_title,
@@ -2217,7 +2218,7 @@ fig_cmp.update_layout(
         tickprefix="R" if prefix == "R" else "",
         ticksuffix="" if prefix == "R" else "%",
         zeroline=True,
-        zerolinecolor="rgba(166,75,42,0.35)",
+        zerolinecolor="rgba(156,74,50,0.35)",
     ),
     plot_bgcolor="rgba(0,0,0,0)",
     paper_bgcolor="rgba(0,0,0,0)",
@@ -2321,7 +2322,7 @@ else:
             yaxis=dict(title=pace_metric,
                        tickprefix="R" if pfx == "R" else None,
                        ticksuffix="%" if pfx == "%" else None,
-                       gridcolor="rgba(74,63,53,0.12)"),
+                       gridcolor="rgba(12,28,31,0.10)"),
             margin=dict(t=40, b=30),
         )
         brand_plotly(fig_pace)
@@ -2391,11 +2392,11 @@ stay months, one set per report date.
 #  a message body. Styled to the Angala fynbos-green palette.
 # ══════════════════════════════════════════════════════════════════════════════
 _GM = {
-    "ink": "#1F2E27", "soft": "#F3F1EA", "line": "#E0DDD0", "muted": "#66695F",
-    "paper": "#FFFDF8", "accent": "#D2B98F",
-    "good": "#47663A", "good_bg": "#E8EFE2",
+    "ink": "#0C1C1F", "soft": "#F6F3EC", "line": "#E6E1D6", "muted": "#5F6A6D",
+    "paper": "#FDF8F6", "accent": "#BAAA70",
+    "good": "#2F5A3B", "good_bg": "#E6EFE7",
     "bad": "#9C4A32", "bad_bg": "#F7E8E2",
-    "flat": "#66695F", "flat_bg": "#EFEEE8",
+    "flat": "#5F6A6D", "flat_bg": "#EFEDE8",
 }
 
 
@@ -2436,7 +2437,7 @@ def build_gm_brief_html(
 ) -> str:
     W = 640
     td = "padding:10px 12px;border-bottom:1px solid " + _GM["line"] + ";font-size:13px;"
-    th = ("padding:9px 12px;background:" + _GM["ink"] + ";color:#F1EFE6;font-size:11px;"
+    th = ("padding:9px 12px;background:" + _GM["ink"] + ";color:#F3EEDF;font-size:11px;"
           "letter-spacing:.06em;text-transform:uppercase;text-align:left;font-weight:600;")
 
     cards = ""
@@ -2536,8 +2537,8 @@ def build_gm_brief_html(
             f'<th style="{th}text-align:right;">Difference</th></tr>{pb}</table></td></tr>'
         )
 
-    return f"""<div style="margin:0;padding:0;background:#ECEBE3;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#ECEBE3;padding:20px 0;">
+    return f"""<div style="margin:0;padding:0;background:#F1EEE7;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EEE7;padding:20px 0;">
 <tr><td align="center">
 <table width="{W}" cellpadding="0" cellspacing="0" style="width:{W}px;max-width:100%;
  font-family:Arial,Helvetica,sans-serif;color:{_GM['ink']};">
@@ -2547,7 +2548,7 @@ def build_gm_brief_html(
                 color:{_GM['accent']};font-weight:700;">Revenue Snapshot</div>
     <div style="font-family:Georgia,serif;font-size:25px;color:#FFFFFF;margin-top:5px;">
       {property_name}</div>
-    <div style="font-size:12.5px;color:#CBD3C8;margin-top:6px;">
+    <div style="font-size:12.5px;color:#C9D0D1;margin-top:6px;">
       Position as at {snapshot_label} &nbsp;·&nbsp; compared with {compare_label}</div>
   </td></tr>
 
@@ -2716,13 +2717,13 @@ if is_admin:
     _GM_TOOLBAR = """
 <div style="font-family:Arial,Helvetica,sans-serif;margin:0 0 12px 0;display:flex;
             gap:8px;align-items:center;flex-wrap:wrap;">
-  <button id="gmCopy" style="background:#1F2E27;color:#fff;border:1px solid #1F2E27;
+  <button id="gmCopy" style="background:#0C1C1F;color:#fff;border:1px solid #0C1C1F;
     border-radius:999px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;">
     Copy as image</button>
-  <button id="gmDl" style="background:#fff;color:#1F2E27;border:1px solid #1F2E27;
+  <button id="gmDl" style="background:#fff;color:#0C1C1F;border:1px solid #0C1C1F;
     border-radius:999px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;">
     Download image (PNG)</button>
-  <span id="gmStatus" style="font-size:12.5px;color:#66695F;"></span>
+  <span id="gmStatus" style="font-size:12.5px;color:#5F6A6D;"></span>
 </div>
 <div id="gmCapture">__BRIEF__</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -2732,7 +2733,7 @@ if is_admin:
   function say(t) { status.textContent = t; }
   function render() {
     return html2canvas(document.getElementById('gmCapture'), {
-      scale: 2, backgroundColor: '#ECEBE3', useCORS: true, logging: false
+      scale: 2, backgroundColor: '#F1EEE7', useCORS: true, logging: false
     });
   }
   function toBlob(canvas) {
