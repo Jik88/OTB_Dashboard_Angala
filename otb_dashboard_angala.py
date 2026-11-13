@@ -1324,9 +1324,10 @@ if os.getenv("SEED_LY", "") == "1":
 
 
 # ── Admin access ─────────────────────────────────────────────────────────────
-ADMIN_PIN = os.environ.get("ADMIN_PIN", "1234")
+# No default PIN: until ADMIN_PIN is set on Railway, admin mode simply can't be unlocked.
+ADMIN_PIN = os.environ.get("ADMIN_PIN", "").strip()
 admin_pin_input = st.sidebar.text_input("Admin PIN (hotel team leave blank)", type="password")
-is_admin = admin_pin_input == ADMIN_PIN
+is_admin = bool(ADMIN_PIN) and admin_pin_input == ADMIN_PIN
 # ── End Admin access ──────────────────────────────────────────────────────────
 
 # Sidebar controls
